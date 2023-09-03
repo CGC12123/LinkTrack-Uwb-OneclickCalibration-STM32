@@ -1,5 +1,7 @@
 #include "TIMER.h"
 
+uint8_t temp_EndCalibrationStatusCheck = 0;
+
 void TIM2_IRQHandler_SendOneClickCalibrationStatusReading(void)
 {
     if (TIM2->SR & TIM_SR_UIF)
@@ -8,9 +10,10 @@ void TIM2_IRQHandler_SendOneClickCalibrationStatusReading(void)
         SendOneClickCalibrationStatusReading();
 
         // 检测到一键标定结束
-        if(EndCalibrationStatusCheck != 0)
+        if(EndCalibrationStatusCheck() != 0)
         {
             Timer_Configuration_stop();
+            temp_EndCalibrationStatusCheck = 1;
         }
 
         // 清除中断标志位
