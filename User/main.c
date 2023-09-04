@@ -7,6 +7,7 @@
 
 int main(void)
 {
+    SerialUWB_Init(); // UWB serial 初始化
 	while(1)
 	{
 		OneclickCalibration();

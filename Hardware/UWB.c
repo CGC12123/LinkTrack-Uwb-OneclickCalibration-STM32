@@ -5,10 +5,10 @@ struct _Uwb
 	uint8_t mix;
 	uint8_t role;
 	uint8_t math_model;
-    uint32_t uart_baudrate : 24;
+    uint8_t uart_baudrate[3];
     uint8_t system_ch;
     uint8_t id;
-    uint16_t update_rate;
+    uint8_t update_rate[2];
     uint8_t system_id;
     uint8_t reserved1[1];
     uint8_t on_off;
@@ -21,19 +21,19 @@ struct _Uwb
     uint8_t reserved4[3];
     uint8_t node_capacity;
     uint8_t reserved5[2];
-    uint32_t local_time;
+    uint8_t local_time[4];
     uint8_t reserved6[5];
     uint8_t anchor_group_index;
-    int a0_coordinate_x : 24;  int a0_coordinate_y : 24; int a0_coordinate_z : 24;
-    int a1_coordinate_x : 24;  int a1_coordinate_y : 24; int a1_coordinate_z : 24;
-    int a2_coordinate_x : 24;  int a2_coordinate_y : 24; int a2_coordinate_z : 24;
-    int a3_coordinate_x : 24;  int a3_coordinate_y : 24; int a3_coordinate_z : 24;
-    int a4_coordinate_x : 24;  int a4_coordinate_y : 24; int a4_coordinate_z : 24;
-    int a5_coordinate_x : 24;  int a5_coordinate_y : 24; int a5_coordinate_z : 24;
-    int a6_coordinate_x : 24;  int a6_coordinate_y : 24; int a6_coordinate_z : 24;
-    int a7_coordinate_x : 24;  int a7_coordinate_y : 24; int a7_coordinate_z : 24;
-    int a8_coordinate_x : 24;  int a8_coordinate_y : 24; int a8_coordinate_z : 24;
-    int a9_coordinate_x : 24;  int a9_coordinate_y : 24; int a9_coordinate_z : 24;
+    char a0_coordinate_x[3];  char a0_coordinate_y[3]; char a0_coordinate_z[3];
+    char a1_coordinate_x[3];  char a1_coordinate_y[3]; char a1_coordinate_z[3];
+    char a2_coordinate_x[3];  char a2_coordinate_y[3]; char a2_coordinate_z[3];
+    char a3_coordinate_x[3];  char a3_coordinate_y[3]; char a3_coordinate_z[3];
+    char a4_coordinate_x[3];  char a4_coordinate_y[3]; char a4_coordinate_z[3];
+    char a5_coordinate_x[3];  char a5_coordinate_y[3]; char a5_coordinate_z[3];
+    char a6_coordinate_x[3];  char a6_coordinate_y[3]; char a6_coordinate_z[3];
+    char a7_coordinate_x[3];  char a7_coordinate_y[3]; char a7_coordinate_z[3];
+    char a8_coordinate_x[3];  char a8_coordinate_y[3]; char a8_coordinate_z[3];
+    char a9_coordinate_x[3];  char a9_coordinate_y[3]; char a9_coordinate_z[3];
 };
 
 struct _Uwb* UwbRight; // 用于校验后储存
@@ -64,11 +64,11 @@ void ReadReturnFrame(void)
 {
     // 状态机
     struct _Uwb Uwb;
-    unsigned char rc_counter = 0;
+    static unsigned char rc_counter = 0;
     signed char sum = 0;
 
-    if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
-	{
+    // if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
+	// {
 		uint8_t RxData = USART_ReceiveData(USART1);
         if( rc_counter < sizeof(packet_ID) )
         {
@@ -82,6 +82,7 @@ void ReadReturnFrame(void)
             {
                 ++rc_counter;
                 sum += RxData;
+                // Serial_SendByte(RxData);
             }
         }
         else if( rc_counter < sizeof(packet_ID) + sizeof(Uwb) )
@@ -90,6 +91,7 @@ void ReadReturnFrame(void)
             ( (unsigned char*)&Uwb )[ rc_counter - sizeof(packet_ID) ] = RxData;
             sum += RxData;
             ++rc_counter;
+            // Serial_SendByte(RxData);
         }
         else
         {
@@ -98,11 +100,12 @@ void ReadReturnFrame(void)
             {
                 ReadInputFrames_mode = Uwb.mode;
                 *UwbRight = Uwb; // 赋值
+                // Serial_SendByte(RxData);
             }
             rc_counter = 0;
             sum = 0;
         }
-    }
+    // }
 }
 
 // 发送一键标定指令
@@ -202,8 +205,8 @@ uint8_t EndCalibrationStatusCheck(void)
 // 一键标定
 void OneclickCalibration(void)
 {
-    SerialUWB_Init(); // UWB serial 初始化
+    // SerialUWB_Init(); // UWB serial 初始化
     // SendReadInputFrames(); // 发送读输入帧
     ReadReturnFrame(); // 读取返回帧
-    SendOneClickCalibration(); // 发送一键标定指令
+    // SendOneClickCalibration(); // 发送一键标定指令
 }
