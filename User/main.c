@@ -7,15 +7,8 @@
 
 int main(void)
 {
-	LED1_OFF();
 	OneclickCalibration();
 
 	// 定时发送一键标定状态读取指令
 	Timer_Configuration_SendOneClickCalibrationStatusReading();
-
-	if(temp_EndCalibrationStatusCheck != 0)
-	{
-		// 点个灯标记一下
-		LED1_ON();
-	}
 }

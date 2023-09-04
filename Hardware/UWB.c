@@ -121,7 +121,6 @@ void SendOneClickCalibration(void)
     else if( rc_counter < sizeof(packet_ID) + sizeof(UwbRight) )
     {	
         // 替换数据
-        UwbRight->mix = 0x02;
         UwbRight->mode = 0x08;
         
         //发送指令数据
