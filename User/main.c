@@ -7,8 +7,11 @@
 
 int main(void)
 {
-	OneclickCalibration();
+	while(1)
+	{
+		OneclickCalibration();
+	}
 
 	// 定时发送一键标定状态读取指令
-	Timer_Configuration_SendOneClickCalibrationStatusReading();
+	// Timer_Configuration_SendOneClickCalibrationStatusReading();
 }

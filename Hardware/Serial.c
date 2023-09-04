@@ -1,5 +1,6 @@
 #include "stm32f10x.h"                  // Device header
 #include <stdio.h>//为了移植printf
+#include "Serial.h"
 
 uint8_t Serial_RxData;
 uint8_t Serial_RxFlag;
@@ -64,7 +65,7 @@ void SerialUWB_Init(void)
 
 	
 	USART_InitTypeDef USART_InitStructure;
-	USART_InitStructure.USART_BaudRate = 460800;
+	USART_InitStructure.USART_BaudRate = 9600;
 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	USART_InitStructure.USART_Mode = USART_Mode_Tx|USART_Mode_Rx;
 	USART_InitStructure.USART_Parity = USART_Parity_No;

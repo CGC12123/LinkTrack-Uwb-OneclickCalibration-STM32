@@ -40,7 +40,7 @@ struct _Uwb* UwbRight; // 用于校验后储存
 
 // 发送 “读输入帧”
 static uint8_t ReadInputFrames[128] = { 
-                0x54, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 
+                0x54, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 
                 0x00, 0xff, 0x00, 0x00, 0xff, 0xff, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -50,13 +50,13 @@ static uint8_t ReadInputFrames[128] = {
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4a};
 
-static uint8_t packet_ID[2] = { 0x55, 0x00 };
+static uint8_t packet_ID[2] = { 0x54, 0x00 };
 uint8_t ReadInputFrames_mode; // 记录读返回帧的mode
 
 // 发送读输入帧 请求数据
 void SendReadInputFrames(void)
 {
-    Serial_SendArray(ReadInputFrames, 126); // 发送
+    Serial_SendArray(ReadInputFrames, 128); // 发送
 }
 
 // 读取返回帧
@@ -111,6 +111,9 @@ void SendOneClickCalibration(void)
     // 状态机
     unsigned char rc_counter = 0;
     signed char sum = 0;
+    
+    // 替换数据
+    UwbRight->mode = 0x08;
 
     if( rc_counter < sizeof(packet_ID) )
     {
@@ -118,11 +121,8 @@ void SendOneClickCalibration(void)
         ++rc_counter;
         sum += packet_ID[rc_counter];
     }
-    else if( rc_counter < sizeof(packet_ID) + sizeof(UwbRight) )
+    else if( rc_counter < sizeof(packet_ID) + sizeof(UwbRight) && UwbRight->mix == 0x00)
     {	
-        // 替换数据
-        UwbRight->mode = 0x08;
-        
         //发送指令数据
         Serial_SendByte(*(uint8_t*)&UwbRight[rc_counter - sizeof(packet_ID)]);
         sum += *((uint8_t*)&UwbRight[rc_counter - sizeof(packet_ID)]);
@@ -131,7 +131,7 @@ void SendOneClickCalibration(void)
     else
     {
         // 发送校验位
-        Serial_SendByte(sum);
+        Serial_SendByte(sum % 0x100);
     }
 }
 
@@ -203,7 +203,7 @@ uint8_t EndCalibrationStatusCheck(void)
 void OneclickCalibration(void)
 {
     SerialUWB_Init(); // UWB serial 初始化
-    SendReadInputFrames(); // 发送读输入帧
+    // SendReadInputFrames(); // 发送读输入帧
     ReadReturnFrame(); // 读取返回帧
     SendOneClickCalibration(); // 发送一键标定指令
 }
