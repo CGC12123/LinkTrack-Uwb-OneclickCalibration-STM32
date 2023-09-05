@@ -7,12 +7,14 @@
 
 int main(void)
 {
-    SerialUWB_Init(); // UWB serial 初始化
+	Serial_Init(); // UWB serial 初始化
 	while(1)
 	{
-		OneclickCalibration();
+		SendReadInputFrames();
+		if (Serial_GetRxFlag() == 1)
+		{
+			OneclickCalibration();
+			break;
+		}
 	}
-
-	// 定时发送一键标定状态读取指令
-	// Timer_Configuration_SendOneClickCalibrationStatusReading();
 }
